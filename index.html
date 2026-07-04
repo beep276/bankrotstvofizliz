@@ -1,6 +1,14 @@
 <script>
     let answers = {};
 
+    // Меняем тип поля телефона на text, чтобы убрать любые блокировки браузеров
+    document.addEventListener("DOMContentLoaded", function() {
+        const phoneInput = document.getElementById('userPhone');
+        if (phoneInput) {
+            phoneInput.setAttribute('type', 'text');
+        }
+    });
+
     function nextStep(stepNumber, answer) {
         const currentStep = stepNumber - 1;
         answers[`Шаг_${currentStep}`] = answer;
@@ -15,16 +23,15 @@
     function sendData(event) {
         event.preventDefault();
         
-        // Находим кнопку и меняем текст, чтобы показать работу
+        const quizContainer = document.querySelector('.quiz-container');
         const submitBtn = event.target.querySelector('.submit-btn');
-        const originalBtnText = submitBtn.innerText;
         submitBtn.innerText = 'Отправка данных...';
         submitBtn.disabled = true;
         
         const name = document.getElementById('userName').value;
         const phone = document.getElementById('userPhone').value;
         
-        // Вставь сюда свои реальные данные из BotFather и userinfobot
+        // ВШИТЫЕ ДАННЫЕ ТВОЕГО БОТА И ТВОЕГО ID
         const TELEGRAM_BOT_TOKEN = '8974552125:AAFBeFbWQ4Y469ei5EGI1Jq3oJ4e7uq39yE'; 
         const TELEGRAM_CHAT_ID = '8991974658'; 
 
@@ -43,18 +50,26 @@
         })
         .then(response => {
             if(response.ok) {
-                // Перенаправление на твой ТГ
-                window.location.href = 'https://t.me'; 
+                // Вывод сообщения об успешной отправке
+                quizContainer.innerHTML = `
+                    <div style="text-align: center; padding: 40px 10px;">
+                        <div style="font-size: 50px; margin-bottom: 20px;">✅</div>
+                        <h2 style="margin-bottom: 15px;">Данные успешно отправлены!</h2>
+                        <p style="color: var(--text-muted); font-size: 16px; line-height: 1.5;">
+                            Анализ вашего дела запущен. <br>В ближайшее время с вами свяжутся ведущие юристы по банкротству для составления плана защиты.
+                        </p>
+                    </div>
+                `;
             } else {
-                alert('Ошибка сервера Телеграм. Проверь токен бота и Chat ID в коде.');
-                submitBtn.innerText = originalBtnText;
+                alert('Ошибка отправки. Убедись, что ты зашел в своего бота в Telegram и нажал кнопку СТАРТ (/start).');
+                submitBtn.innerText = 'Получить разбор в Telegram →';
                 submitBtn.disabled = false;
             }
         })
         .catch(err => {
             console.error(err);
-            alert('Ошибка отправки. Проверь подключение к сети.');
-            submitBtn.innerText = originalBtnText;
+            alert('Сбой сети. Проверь интернет.');
+            submitBtn.innerText = 'Получить разбор в Telegram →';
             submitBtn.disabled = false;
         });
     }
